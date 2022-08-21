@@ -348,7 +348,6 @@ function deleteRole() {
     .promise()
     .query(sql)
     .then(([rows]) => {
-      console.log(rows);
       inquirer
         .prompt([
           {
@@ -359,7 +358,6 @@ function deleteRole() {
           },
         ])
         .then((answers) => {
-          console.log(answers.target);
           const sql = "DELETE FROM role WHERE title = '" + answers.target + "'";
 
           connection
@@ -435,7 +433,6 @@ function deleteDepartment() {
           },
         ])
         .then((answers) => {
-          console.log(answers.target);
           const sql =
             "DELETE FROM department WHERE name = '" + answers.target + "'";
 
@@ -451,8 +448,6 @@ function deleteDepartment() {
             .then(() => startPrompts());
         });
     });
-  // .catch(console.log)
-  // .then(() => startPrompts());
 }
 // exit application
 function Quit() {
