@@ -37,11 +37,14 @@ function startPrompts() {
         choices: [
           "View All Employees",
           "Add Employee",
+          "Fire Employee",
           "Update Employee Role",
           "View All Roles",
           "Add Role",
+          "Delete Role",
           "View all Departments",
           "Add Department",
+          "Delete Department",
           "Quit",
         ],
       },
@@ -55,6 +58,9 @@ function startPrompts() {
       if (choices === "Add Employee") {
         addEmployee();
       }
+      if (choices === "Fire Employee") {
+        deleteEmployee();
+      }
       if (choices === "Update Employee Role") {
         updateEmployee();
       }
@@ -64,11 +70,17 @@ function startPrompts() {
       if (choices === "Add Role") {
         addRole();
       }
+      if (choices === "Delete Role") {
+        deleteRole();
+      }
       if (choices === "View all Departments") {
         viewDepts();
       }
       if (choices === "Add Department") {
         addDepts();
+      }
+      if (choices === "Delete Department") {
+        deleteDepartment();
       }
       if (choices === "Quit") {
         Quit();
@@ -223,6 +235,44 @@ function updateEmployee() {
         });
     });
 }
+// delete employee
+function deleteEmployee() {
+  const sql = `SELECT employee.id,
+                CONCAT (employee.first_name," ", employee.last_name) AS name
+                FROM employee`;
+  connection
+    .promise()
+    .query(sql)
+    .then(([rows]) => {
+      const table = rows;
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            message: "Which Employee is getting the boot?",
+            name: "target",
+            choices: rows,
+          },
+        ])
+        .then((answers) => {
+          const sacked = table.find((obj) => {
+            return obj.name === answers.target;
+          });
+          const sql = "DELETE FROM employee WHERE id = '" + sacked.id + "'";
+
+          connection
+            .promise()
+            .query(sql)
+            .then(
+              console.log(
+                answers.target + " has been sacked. I hope you're happy."
+              )
+            )
+            .catch(console.log)
+            .then(() => startPrompts());
+        });
+    });
+}
 // view table of roles
 function viewRoles() {
   console.log("Showing all Roles - ");
@@ -287,6 +337,46 @@ function addRole() {
         });
     });
 }
+// delete role
+function deleteRole() {
+  const sql = `SELECT role.id,
+                      role.title AS name
+                      FROM role
+                      `;
+
+  connection
+    .promise()
+    .query(sql)
+    .then(([rows]) => {
+      console.log(rows);
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            message: "Which role would you like to delete?",
+            name: "target",
+            choices: rows,
+          },
+        ])
+        .then((answers) => {
+          console.log(answers.target);
+          const sql = "DELETE FROM role WHERE title = '" + answers.target + "'";
+
+          connection
+            .promise()
+            .query(sql)
+            .then(
+              console.log(
+                "Deleted role " +
+                  answers.target +
+                  " from the database. Remember to update affected employee information!"
+              )
+            )
+            .catch(console.log)
+            .then(() => startPrompts());
+        });
+    });
+}
 // view table of departments
 function viewDepts() {
   console.log("Showing all Departments - ");
@@ -324,6 +414,45 @@ function addDepts() {
         .catch(console.log)
         .then(() => startPrompts());
     });
+}
+// delete department
+function deleteDepartment() {
+  const sql = `SELECT department.id AS ID,
+  department.name
+  FROM department`;
+
+  connection
+    .promise()
+    .query(sql)
+    .then(([rows]) => {
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            message: "Which department would you like to delete?",
+            name: "target",
+            choices: rows,
+          },
+        ])
+        .then((answers) => {
+          console.log(answers.target);
+          const sql =
+            "DELETE FROM department WHERE name = '" + answers.target + "'";
+
+          connection
+            .promise()
+            .query(sql)
+            .then(
+              console.log(
+                "Deleted department " + answers.target + " from the database"
+              )
+            )
+            .catch(console.log)
+            .then(() => startPrompts());
+        });
+    });
+  // .catch(console.log)
+  // .then(() => startPrompts());
 }
 // exit application
 function Quit() {
